@@ -6,13 +6,13 @@ let input =
   close_in ic;
   s
 
-let rec first_digit_in_seq seq =
-  let is_digit ch = match ch with '0' .. '9' -> true | _ -> false in
-  match seq () with
-  | Seq.Nil -> failwith "digit not found"
-  | Cons (c, cs) ->
-      if is_digit c then int_of_string (String.make 1 c)
-      else first_digit_in_seq cs
+let first_digit_in_seq seq =
+  let int_of_char ch =
+    match ch with
+    | '0' .. '9' -> Some (Char.code ch - Char.code '0')
+    | _ -> None
+  in
+  Seq.find_map int_of_char seq |> Option.get
 
 let first_digit line = first_digit_in_seq (String.to_seq line)
 
@@ -23,7 +23,4 @@ let last_digit line =
 let () =
   String.trim input |> String.split_on_char '\n'
   |> List.map (fun line -> (first_digit line * 10) + last_digit line)
-  |> List.fold_left Int.add 0
-  |> fun n ->
-  print_int n;
-  print_newline ()
+  |> List.fold_left ( + ) 0 |> Printf.printf "%d\n"
